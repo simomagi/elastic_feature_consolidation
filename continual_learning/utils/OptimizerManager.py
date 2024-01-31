@@ -16,8 +16,9 @@ class OptimizerManager:
            
             if self.rotation:
                 params_to_optimize += [p for p in auxiliary_classifier.parameters() if p.requires_grad]
-            else:
                 print("Optimizing Self Rotation")
+       
+                
                 
             if self.dataset == "imagenet-subset" or self.dataset == "imagenet-1k":
                 

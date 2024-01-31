@@ -39,7 +39,6 @@ class ElasticFeatureConsolidation(IncrementalApproach):
     def print_running_approach(self):
         super(ElasticFeatureConsolidation, self).print_running_approach()
         print("\n efc_hyperparams")
-        print("- applying self rotation only at task 0" )
         print("- efc_lamb: {}".format(self.efc_lamb))
         print("- damping: {}".format(self.damping)) 
         print("\n Proto_hyperparams")
@@ -142,8 +141,7 @@ class ElasticFeatureConsolidation(IncrementalApproach):
                 images_rot, target_rot = compute_rotations(images, self.image_size, self.task_dict, targets, task_id)
                 images = torch.cat([images, images_rot], dim=0)
                 targets = torch.cat([targets, target_rot], dim=0)
-                old_features = None
-                pb = 0
+         
                 
             if task_id > 0:
                 # Forward old model
@@ -156,6 +154,9 @@ class ElasticFeatureConsolidation(IncrementalApproach):
                     targets = torch.cat([targets, previous_batch_labels], dim=0)
                 else:
                     pb =  self.protobatch_size 
+            else:
+                old_features = None
+                pb = 0
                 
             # Forward in the current model
             outputs, features = self.model(images)

@@ -37,7 +37,7 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
       
       # SELF-ROTATION classifier
       self.auxiliary_classifier = None
-      if self.dataset == "imagenet":
+      if self.dataset == "imagenet-1k":
          # not applying self-rotation on imagenet
          self.rotation = False
       else:
