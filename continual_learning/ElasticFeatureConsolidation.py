@@ -47,7 +47,7 @@ class ElasticFeatureConsolidation(IncrementalApproach):
  
   
     def pre_train(self,  task_id):
-        if  task_id == 0:
+        if  task_id == 0 and self.rotation:
             # Auxiliary classifier used for self rotation
             self.auxiliary_classifier = nn.Linear(512, len(self.task_dict[task_id]) * 3 )
             self.auxiliary_classifier.to(self.device)
@@ -120,11 +120,13 @@ class ElasticFeatureConsolidation(IncrementalApproach):
     def train(self, task_id, trn_loader, epoch, epochs):
 
         if task_id == 0:
-            self.auxiliary_classifier.train()
             self.model.train()
         else:
             # following SDC https://github.com/yulu0724/SDC-IL/blob/master/train.py, we freeze batch norm after the first task.
-            self.model.eval() 
+            self.model.eval()
+            
+        if  task_id == 0 and self.rotation:
+            self.auxiliary_classifier.train() 
                        
         start = time()
         count_batches = 0     
@@ -135,14 +137,15 @@ class ElasticFeatureConsolidation(IncrementalApproach):
             targets = targets.to(self.device)
    
             current_batch_size = images.shape[0]
-            if task_id == 0:
-                # Apply self-rotation
+            
+            if  task_id == 0 and self.rotation:
                 images_rot, target_rot = compute_rotations(images, self.image_size, self.task_dict, targets, task_id)
                 images = torch.cat([images, images_rot], dim=0)
                 targets = torch.cat([targets, target_rot], dim=0)
                 old_features = None
                 pb = 0
-            else: 
+                
+            if task_id > 0:
                 # Forward old model
                 _, old_features = self.old_model(images)
                 
@@ -153,12 +156,11 @@ class ElasticFeatureConsolidation(IncrementalApproach):
                     targets = torch.cat([targets, previous_batch_labels], dim=0)
                 else:
                     pb =  self.protobatch_size 
-             
-                    
+                
             # Forward in the current model
             outputs, features = self.model(images)
             
-            if task_id == 0:
+            if  task_id == 0 and self.rotation:
                 # predict the rotation the rotations
                 out_rot = self.auxiliary_classifier(features)
                 outputs[task_id] = torch.cat([outputs[task_id], out_rot],axis=1)

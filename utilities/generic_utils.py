@@ -161,7 +161,8 @@ def remap_targets(train_set, test_set, total_classes, dataset):
         ]
     else:
         random.shuffle(l)
-        label_mapping = dict(zip(l_sorted, l))
+    
+    label_mapping = dict(zip(l_sorted, l))
     
     # remap train labels following label_mapping    
     

@@ -3,20 +3,21 @@ import torch
 
 class OptimizerManager:
     
-    def __init__(self, approach, dataset) -> None:
+    def __init__(self, approach, dataset, rotation) -> None:
         
         self.approach = approach
         self.dataset = dataset
+        self.rotation = rotation
     
     def get_optimizer(self, task_id, model, auxiliary_classifier):
         ## Large First Task Training
         if task_id == 0:
             params_to_optimize = [p for p in  model.backbone.parameters() if p.requires_grad] + [p for p in model.heads.parameters() if p.requires_grad]
-            print("Optimizing Self Rotation")
-            
-            if self.dataset != "imagenet-1k":
-                # not apply self rotation to imagenet-1k 
+           
+            if self.rotation:
                 params_to_optimize += [p for p in auxiliary_classifier.parameters() if p.requires_grad]
+            else:
+                print("Optimizing Self Rotation")
                 
             if self.dataset == "imagenet-subset" or self.dataset == "imagenet-1k":
                 
