@@ -9,7 +9,7 @@ from continual_learning.utils.OptimizerManager import OptimizerManager
 
 class IncrementalApproach(metaclass=abc.ABCMeta):
     
-   def __init__(self, args, device, out_path, class_per_task, task_dict, exemplar_loaders):
+   def __init__(self, args, device, out_path, class_per_task, task_dict):
       self.device = device
       self.out_path = out_path
       self.class_per_task = class_per_task
@@ -18,14 +18,8 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
       # Model args
       self.approach = args.approach
       self.backbone = args.backbone
-      # Optimizer args
-      self.lr_first_task = args.lr_first_task
-      self.scheduler_type  = args.scheduler_type
-      self.backbone_lr = args.backbone_lr
-      self.head_lr = args.head_lr
 
       self.batch_size = args.batch_size 
-      self.total_epochs = args.epochs 
       self.logger = SummaryWriter(os.path.join(out_path, "tensorboard"))
       self.milestones_first_task = None 
       self.dataset = args.dataset
@@ -33,57 +27,32 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
          self.image_size = 32
       elif self.dataset=="tiny-imagenet":
          self.image_size = 64
-      elif self.dataset=="imagenet-subset":
+      elif self.dataset=="imagenet-subset" or self.dataset == "imagenet-1k":
          self.image_size = 224
-         print("Fixing the backbone lr to 1e-5 and the head lr to 1e-4")
-         self.backbone_lr = 1e-5
-         self.head_lr == 1e-4
-         
+
+      self.firsttask_modelpath = args.firsttask_modelpath 
+      self.seed = args.seed
+      self.epochs_first_task = args.epochs_first_task
+      self.epochs_next_task = args.epochs_next_task
+      
       # SELF-ROTATION classifier
       self.auxiliary_classifier = None
-      self.optimizer_manager = OptimizerManager(self.backbone_lr, self.head_lr, 
-                                                self.scheduler_type, self.approach)
-      
-      if self.dataset == "imagenet-subset":
-         self.milestones_first_task = [80, 120, 150]
-      else:
-         self.milestones_first_task = [45, 90]
+      self.optimizer_manager = OptimizerManager(self.approach, self.dataset)
 
       
       
 
    def pre_train(self, task_id, *args):
  
+      self.optimizer, self.reduce_lr_on_plateau  = self.optimizer_manager.get_optimizer(task_id, self.model, self.auxiliary_classifier)
       if task_id == 0:
-         params_to_optimize = [p for p in self.model.backbone.parameters() if p.requires_grad] + [p for p in self.model.heads.parameters() if p.requires_grad]
-         params_to_optimize += [p for p in self.auxiliary_classifier.parameters() if p.requires_grad]
-            
-         if self.dataset=="imagenet-subset": 
-            self.lr_first_task = 0.1 
-       
-            gamma = 0.1 
-            custom_weight_decay = 5e-4 
-            custom_momentum = 0.9  
-            print("Using SGD Optimizer With PASS setting")
-            self.optimizer = torch.optim.SGD(params_to_optimize, lr=self.lr_first_task, momentum=custom_momentum,
-                                             weight_decay=custom_weight_decay)
-            
-            self.reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(self.optimizer,
-                                                         milestones=self.milestones_first_task,
-                                                         gamma=gamma, verbose=True
-                                                         )
-         else:
-    
-            self.optimizer = torch.optim.Adam(params_to_optimize, lr=self.lr_first_task, weight_decay=2e-4)
-            self.reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(self.optimizer,
-                                                      milestones=self.milestones_first_task,
-                                                      gamma=0.1, verbose=True
-                                                         )
-      else:            
-
-            self.optimizer, self.reduce_lr_on_plateau = self.optimizer_manager.get_optimizer(task_id, self.model, self.auxiliary_classifier)
-
- 
+         self.total_epochs = self.epochs_first_task
+      else: 
+         self.total_epochs =  self.epochs_next_task
+      
+      print("Approach total epochs {}".format(self.total_epochs))
+      
+      
              
    def rescale_targets(self, targets, t):
        offset =  (t-1)*self.class_per_task + self.n_class_first_task  if self.n_class_first_task > -1 and t > 0 else t*self.class_per_task
@@ -114,10 +83,8 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
       print("- approach: {}".format(self.approach))
       print("- backbone: {}".format(self.backbone))
       print("- batch size : {}".format(self.batch_size))
-      print("- lr first task: {} with decay multi-step {}".format(self.lr_first_task, self.milestones_first_task))
-      print("- incremental phases: backbone lr : {}".format(self.backbone_lr))
-      print("- incremental phases: head lr : {}".format(self.head_lr))
-      print("- incremental phases: scheduler type  {}".format(self.scheduler_type))
+      print("- epochs first task: {}".format(self.epochs_first_task))
+      print("- epochs next task: {}".format(self.epochs_next_task))
       print()
 
    

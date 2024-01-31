@@ -51,7 +51,8 @@ if __name__ == "__main__":
     train_set, test_set, total_classes = get_dataset(args.dataset, args.data_path)
     
     # mapping between classes and shuffled classes and re-map dataset classes for different order of classes 
-    train_set, test_set, label_mapping = remap_targets(train_set, test_set, total_classes)
+    # for imagenet-1k we use the order of classes of DER  https://github.com/Rhyssiyan/DER-ClassIL.pytorch/blob/main/inclearn/datasets/dataset.py 
+    train_set, test_set, label_mapping = remap_targets(train_set, test_set, total_classes, args.dataset)
     
     # class_per_task: number of classes not in the first task, if the first is larger, otherwise it is equal to total_classes/n_task
     class_per_task = get_class_per_task(args.n_class_first_task, total_classes, args.n_task)
@@ -103,8 +104,6 @@ if __name__ == "__main__":
     result_folder(out_path, "logger")
  
  
-
- 
     if args.approach == "efc":
         approach = ElasticFeatureConsolidation(args=args, device=device, 
                                                   out_path=out_path, class_per_task=class_per_task,
@@ -117,14 +116,13 @@ if __name__ == "__main__":
 
 
         if  task_id == 0 and args.firsttask_modelpath != "None":
- 
+            # useful for retrieving a pre-trained model, it must be saved in  a path {args.firsttask_modelpath}/{args.dataset}_{args.seed}/0_model.pth"
             approach.pre_train(task_id, train_loader,  valid_loaders[task_id])
  
             print("Loading model from path {}".format(os.path.join(args.firsttask_modelpath, "{}_seed_{}".format(args.dataset, args.seed), "0_model.pth")))
 
             rollback_model(approach, os.path.join(args.firsttask_modelpath, "{}_seed_{}".format(args.dataset, args.seed),"0_model.pth"), device, name=str(task_id))
   
-            
             epoch = 100
         else:
  
@@ -134,56 +132,31 @@ if __name__ == "__main__":
             """
             Pre-train
             """
-            
 
-            approach.pre_train(task_id, train_loader,  valid_loaders[task_id])
+            approach.pre_train(task_id)
 
             best_taw_accuracy,  best_tag_accuracy = 0, 0
             best_loss = math.inf 
-            
-            if task_id == 0 and args.dataset == "imagenet-subset":
-                n_epochs = 160 # default number of epochs for imagenet subset 
-            else:
-                n_epochs = args.epochs
             
             
             """
             Main train Loop
             """
                     
-            for epoch in range(n_epochs):
-                print("Epoch {}/{}".format(epoch, n_epochs))
-                
-                if epoch == 0:
-                    store_model(approach, out_path)
+            for epoch in range(approach.total_epochs):
+                print("Epoch {}/{}".format(epoch, approach.total_epochs))
 
-                approach.train(task_id, train_loader, epoch, n_epochs)
-                
+                approach.train(task_id, train_loader, epoch, approach.total_epochs)
                 taw_acc, tag_acc, test_loss  = approach.eval(task_id, task_id, valid_loaders[task_id], epoch,  verbose=True)
-                
-                previous_lr = approach.optimizer.param_groups[0]["lr"]
-                
                 approach.reduce_lr_on_plateau.step()
                     
-                current_lr = approach.optimizer.param_groups[0]["lr"]
-                
-                if taw_acc > best_taw_accuracy:
-                    old_accuracy = best_taw_accuracy
-                    best_taw_accuracy = taw_acc
-                    store_model(approach, out_path)
-                    print(f"  --> from acc {old_accuracy:.3f} to {taw_acc:.3f}")
-            
-            
         """
-        Test Final Model
+        Test Final Model on all the encountered tasks
         """
     
         store_model(approach, out_path, name=str(task_id))
  
-        
-
         for test_id in range(task_id + 1):
-
             acc_taw_value, acc_tag_value, _,  = approach.eval(task_id, test_id, test_loaders[test_id], epoch,  verbose=False)                                                                                                            
             logger.update_accuracy(current_training_task_id=task_id, test_id=test_id, acc_taw_value=acc_taw_value,  acc_tag_value=acc_tag_value)
             if test_id < task_id:
@@ -196,13 +169,11 @@ if __name__ == "__main__":
         """
         logger.compute_average()
         logger.print_file()
-  
         approach.post_train(task_id=task_id, trn_loader=train_loader)
 
     
             
-            
- 
+        
     summary_logger = SummaryLogger(all_args, all_default_args, args.outpath)
     summary_logger.update_summary(exp_name, logger)
     store_valid_loader(out_path, valid_loaders, False)

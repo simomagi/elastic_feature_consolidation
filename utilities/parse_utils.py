@@ -16,17 +16,15 @@ def get_args():
     """
     Training hyperparams 
     """
-    parser.add_argument("--epochs", "-e", type=int, default=100)
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--lr_first_task", type=float, default=1e-3, help="for tiny-imagenet and cifar100, for imagenet-subet default  are in IncrementalApproach.py")
-    parser.add_argument("--backbone_lr", type=float, default=1e-4)
-    parser.add_argument("--head_lr", type=float, default=1e-4)
-    parser.add_argument("--scheduler_type", type=str, default="fixd", choices=["fixd", "multi_step"])
+    parser.add_argument("--epochs_first_task", type=int, default=100,help="epochs first task, should be changed to 160 for imagenet-subset and imagenet-1k")
+    parser.add_argument("--epochs_next_task",type=int, default=100, help="epochs next task")
+    parser.add_argument("--batch_size", type=int, default=64, help="batch size of data, should be changed to 256 for imagenet-1k")
     parser.add_argument("--device", type=int, default=0)
     
     "Dataset Settings"
-    parser.add_argument("--dataset", type=str, default="cifar100", choices=["cifar100","tiny-imagenet","imagenet-subset"], help="dataset to use") 
-    parser.add_argument("--data_path",type=str, default="/cl_data",help="path where imagenet subset and tiny-imagenet are saved")
+    parser.add_argument("--dataset", type=str, default="cifar100", choices=["cifar100","tiny-imagenet", "imagenet-subset", "imagenet-1k"], help="dataset to use") 
+    parser.add_argument("--data_path",type=str, default="/cl_data",help="path where imagenet subset, imagenet-1k, tiny-imagenet are saved")
+    
     parser.add_argument("--n_class_first_task", type=int, default=50, help="if greater than -1 use a larger number of classes for the first class, n_task include this one")
     parser.add_argument("--n_task", type=int, default=6, help="number of task")
     parser.add_argument("--valid_size", type=float, default=0.0, help="percentage of train for validation set, default not use validation set")
@@ -40,10 +38,8 @@ def get_args():
     EFC  Hyperparams
     """
     parser.add_argument("--efc_lamb", default=10.0, type=float, help="lambda associated to EFM")  
-    parser.add_argument("--efc_protoweight", default=10.0, type=float, help="only used if the proto loss is symmetric, it is the lambda in front of the proto loss")
-    parser.add_argument("--efc_protobatchsize", type=int, default=64, help="batch size of prototypes")
+    parser.add_argument("--efc_protobatchsize", type=int, default=64, help="batch size of prototypes, should be changed to 256 for imagenet-1k")
     parser.add_argument("--efc_damping", type=float, default=0.1, help="damping hyperparameter, eta in the paper")
-    parser.add_argument("--efc_protoloss",type=str,default="asymmetric", choices=["symmetric",  "asymmetric"])
     parser.add_argument("--efc_protoupdate",type=float, default=0.2, help=["update proto using  gaussian sigma (in the paper) 0.2, if -1 it is specified it does not update the prototype"] )
  
     args = parser.parse_args()

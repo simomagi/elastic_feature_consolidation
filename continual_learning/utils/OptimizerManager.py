@@ -1,65 +1,115 @@
-import torch
+import torch 
 
 
 class OptimizerManager:
     
-    def __init__(self, backbone_lr, head_lr, scheduler_type, approach) -> None:
+    def __init__(self, approach, dataset) -> None:
         
-        self.backbone_lr = backbone_lr
-        self.head_lr = head_lr 
-        self.scheduler_type = scheduler_type
         self.approach = approach
+        self.dataset = dataset
     
     def get_optimizer(self, task_id, model, auxiliary_classifier):
-        if task_id > 0:
-            model.freeze_bn() 
-
-        backbone_params = [p for p in  model.backbone.parameters() if p.requires_grad]
-        old_head_params = [p for p in model.heads[:-1].parameters()  if p.requires_grad]
-        new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
-        head_params = old_head_params + new_head_params
-        
-        if self.approach == "pass":
-            print("Adding Rotation Classifier to the Optimizer")
-            auxiliary_classifier_params = [p for p in auxiliary_classifier.parameters() if p.requires_grad]
-           
-            params = backbone_params + head_params +  auxiliary_classifier_params
-
-            if self.backbone_lr == self.head_lr:
-                print("Using Adam with a single lr {}".format(self.backbone_lr))
-                optimizer =  torch.optim.Adam(params, lr=self.backbone_lr, weight_decay=2e-4)
-            else:
-                print("Using Adam with two lr. Backbone: {}, Head: {}".format(self.backbone_lr, self.head_lr))
-                optimizer = torch.optim.Adam([{'params': head_params, 'lr':self.head_lr},
-                                              {'params': auxiliary_classifier_params, 'lr':self.head_lr},
-                                              {'params': backbone_params}
-                                             ],lr=self.backbone_lr, weight_decay=2e-4)
-        elif self.approach == "efc":
-    
-            params = backbone_params + head_params
-            if self.backbone_lr == self.head_lr:
-                print("Using Adam with a single lr {}".format(self.backbone_lr))
-                optimizer =  torch.optim.Adam(params, lr=self.backbone_lr, weight_decay=2e-4)
+        ## Large First Task Training
+        if task_id == 0:
+            params_to_optimize = [p for p in  model.backbone.parameters() if p.requires_grad] + [p for p in model.heads.parameters() if p.requires_grad]
+            print("Optimizing Self Rotation")
             
+            if self.dataset != "imagenet-1k":
+                # not apply self rotation to imagenet-1k 
+                params_to_optimize += [p for p in auxiliary_classifier.parameters() if p.requires_grad]
+                
+            if self.dataset == "imagenet-subset" or self.dataset == "imagenet-1k":
+                
+                lr_first_task = 0.1 
+                gamma = 0.1 
+                custom_weight_decay = 5e-4 
+                custom_momentum = 0.9  
+                
+                milestones_first_task = [80, 120, 150]
+                optimizer = torch.optim.SGD(params_to_optimize, lr=lr_first_task, momentum=custom_momentum,
+                                                weight_decay=custom_weight_decay)
+                
+                reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(optimizer,
+                                                            milestones=milestones_first_task,
+                                                            gamma=gamma, verbose=True
+                                                            )
+                print("Using SGD Optimizer With PASS setting: \n\
+                        LR: {}, Step Decay {} with Milestones {}, Weight Decay {}, Momentum {} ".format(lr_first_task,
+                                                                                                            gamma,
+                                                                                                            milestones_first_task,
+                                                                                                            custom_weight_decay,
+                                                                                                            custom_momentum,
+                                                                                                            ))
             else:
-                print("Using Adam with two lr. Backbone: {}, Head: {}".format(self.backbone_lr, self.head_lr))
-     
-                optimizer = torch.optim.Adam([{'params': head_params, 'lr':self.head_lr},
-                                              {'params': backbone_params}
-                                                ],lr=self.backbone_lr, 
-                                                weight_decay=2e-4)
- 
-        if self.scheduler_type == "multi_step":
-            print("Scheduling lr after 45 and 90 epochs")
-            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
-                                                            milestones=[45, 90],
-                                                            gamma=0.1, verbose=True
-                                                               )
+
+                lr_first_task = 1e-3
+                milestones_first_task = [45, 90]
+                custom_weight_decay = 2e-4
+                gamma = 0.1
+                optimizer = torch.optim.Adam(params_to_optimize, lr=lr_first_task, weight_decay=custom_weight_decay)
+                reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(optimizer,
+                                                                                milestones=milestones_first_task,
+                                                                            gamma=gamma, verbose=True)
+                print("Using Adam Optimizer With PASS setting: \n\
+                        LR: {}, Step Decay {} with Milestones {}, Weight Decay {} ".format(lr_first_task,
+                                                                                            gamma,
+                                                                                            milestones_first_task,
+                                                                                            custom_weight_decay
+                                                                                                            )) 
+            
+            return optimizer, reduce_lr_on_plateau 
+        
         else:
-            print("Fixed Learning Rate")
-            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
+            # Oprimization Settings Next Tasks
+            model.freeze_bn()
+            if self.dataset == "imagenet-subset"  or self.dataset == "imagenet-1k": 
+                backbone_lr = 1e-5
+                head_lr = 1e-4
+                custom_weight_decay = 2e-4
+                backbone_params = [p for p in  model.backbone.parameters() if p.requires_grad]
+            
+                old_head_params = [p for p in model.heads[:-1].parameters()  if p.requires_grad]
+                
+                new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
+                head_params = old_head_params + new_head_params
+                
+                optimizer = torch.optim.Adam([{'params': head_params, 'lr':head_lr},
+                                {'params': backbone_params}
+                                    ],lr=backbone_lr, 
+                                    weight_decay=custom_weight_decay)
+                print("Using Adam Optimizer With Fixed LR: \n\
+                        Backbone LR: {}, Head LR {}, Weight Decay {},".format(backbone_lr,
+                                                                                head_lr,      
+                                                                                custom_weight_decay)) 
+
+            else:
+                
+                old_head_params = [p for p in model.heads[:-1].parameters()  if p.requires_grad]
+
+                new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
+                head_params = old_head_params + new_head_params
+
+                params_to_optimize = [p for p in model.backbone.parameters() if p.requires_grad] +  head_params 
+                backbone_lr = head_lr = 1e-4
+                custom_weight_decay = 2e-4
+                optimizer =  torch.optim.Adam(params_to_optimize, lr=backbone_lr, weight_decay=2e-4)
+                print("Using Adam Optimizer With Fixed LR: \n\
+                        Backbone LR: {}, Head LR {}, Weight Decay {}".format(backbone_lr,
+                                                                            head_lr,      
+                                                                            custom_weight_decay)) 
+
+            # Fixed Scheduler
+            reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(optimizer,
                                                             milestones=[1000,2000],
                                                             gamma=0.1, verbose=True
-                                                              )
+                                                            )
+            return optimizer, reduce_lr_on_plateau 
             
-        return optimizer, scheduler
+            
+            
+
+  
+
+
+    
+ 

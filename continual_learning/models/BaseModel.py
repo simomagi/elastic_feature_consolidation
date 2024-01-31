@@ -19,7 +19,7 @@ class BaseModel(nn.Module):
                 self.backbone = resnet18(avg_pool_size=4, pretrained=False)  
             elif dataset == "tiny-imagenet":
                 self.backbone = resnet18(avg_pool_size=8, pretrained=False)
-            elif dataset == "imagenet-subset":
+            elif dataset == "imagenet-subset" or self.dataset == "imagenet-1k": 
                 self.backbone = resnet18_imagenet()
 
         else:

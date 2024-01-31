@@ -115,8 +115,6 @@ class EmpiricalFeatureMatrix:
 
         # divide by the total number of samples 
         self.empirical_feat_mat = self.empirical_feat_mat/n_samples
-        torch.save([self.empirical_feat_mat, n_samples], os.path.join(self.out_path, "efm_{}.pt".format(task_id)))
-
 
         if isPSD(self.empirical_feat_mat):
             print("EFM is semidefinite positive")

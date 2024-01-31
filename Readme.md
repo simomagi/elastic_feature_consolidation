@@ -19,14 +19,14 @@ The default hyperparameters are the ones used to compute the Table 1 in the main
 1. 10 Step
 
 ```
-python -u   main.py -op ./ws_cifar100_10step --dataset cifar100 --n_task 11 --n_class_first_task 50 --approach efc --epochs 100 --nw 12 --seed 0 
+python -u   main.py -op ./ws_cifar100_10step --dataset cifar100 --n_task 11 --n_class_first_task 50 --approach efc  --nw 12 --seed 0 
 
 ```
 
 2. 20 Step
 
 ```
-python -u   main.py -op ./ws_cifar100_20step --dataset cifar100 --n_task 21 --n_class_first_task 40 --approach efc --epochs 100 --nw 12 --seed 0 
+python -u   main.py -op ./ws_cifar100_20step --dataset cifar100 --n_task 21 --n_class_first_task 40 --approach efc  --nw 12 --seed 0 
 
 ```
 

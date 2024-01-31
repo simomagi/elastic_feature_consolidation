@@ -98,6 +98,35 @@ def get_train_val_images_imagenet_subset(data_path):
     test_targets =  np.array(test_labels)
    
     return train_images, train_targets, test_images, test_targets, class_to_idx
+
+
+def get_train_val_images_imagenet_1k(data_path):
+     
+    train_dir = os.path.join(data_path, "imagenet", 'train')
+    test_dir = os.path.join(data_path, "imagenet", 'val')
+    train_dset = datasets.ImageFolder(train_dir)
+    test_dset = datasets.ImageFolder(test_dir)
+
+    train_images = []
+    train_labels = []
+    for item in train_dset.imgs:
+        train_images.append(item[0])
+        train_labels.append(item[1])
+    
+    train_targets =  np.array(train_labels)
+    _, class_to_idx = find_classes(train_dir)
+    
+    
+    test_images = []
+    test_labels = []
+    
+    for item in test_dset.imgs:
+        test_images.append(item[0])
+        test_labels.append(item[1])
+
+    test_targets =  np.array(test_labels)
+ 
+    return train_images, train_targets, test_images, test_targets, class_to_idx
     
 
 
@@ -204,6 +233,30 @@ def get_dataset(dataset_type, data_path):
         test_set = TinyImagenetDataset(test_data, test_targets, class_to_idx, test_transform)
         
         n_classes = 100
+    elif dataset_type == "imagenet-1k":
+        train_data, train_targets, test_data, test_targets, class_to_idx = get_train_val_images_imagenet_1k(data_path)
+        
+        train_transform = transforms.Compose([
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                    std=[0.229, 0.224, 0.225])
+                    ])
+        
+        test_transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                std=[0.229, 0.224, 0.225])
+            ])
+        
+        train_set = TinyImagenetDataset(train_data, train_targets, class_to_idx, train_transform)
+        test_set = TinyImagenetDataset(test_data, test_targets, class_to_idx, test_transform)
+        
+        n_classes = 1000
+        
     
     return train_set, test_set, n_classes
 
