@@ -1,8 +1,9 @@
 # Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning
 
-This repository contains all code needed to reproduce the experimental results in the main paper.
-
 ![](images/EFC_overview_split.png)
+
+This repository contains all code needed to reproduce the experimental results in Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning, accepted at ICLR 2024.
+
 
 # Setting up the Conda environment
 
