@@ -39,8 +39,8 @@ class SummaryLogger():
                             ["#".join(str(item) for item in list_perstep_acc_taw)]+
                             [list_perstep_acc_taw[-1]]+
                             ["#".join(str(item) for item in list_perstep_acc_tag)]+
-                            [list_perstep_acc_tag[-1]]]+
-                            [average_incremental_acc], columns=self.columns)
+                            [list_perstep_acc_tag[-1]]+
+                            [average_incremental_acc]], columns=self.columns)
         
         df.to_csv(os.path.join(self.out_path, exp_name,  "summary.csv"), index=False)
     
