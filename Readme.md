@@ -2,7 +2,7 @@
 
 ![](images/EFC_overview_split.png)
 
-This repository contains all code needed to reproduce the experimental results in Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning, accepted at ICLR 2024.
+This repository contains all code needed to reproduce the experimental results in Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning, published at ICLR 2024.
 
 
 # Setting up the Conda environment
@@ -22,14 +22,14 @@ The default hyperparameters are the ones used to compute the Table 1 in the main
 1. 10 Step
 
 ```
-python -u   main.py -op ./ws_cifar100_10step --dataset cifar100 --n_task 11 --n_class_first_task 50 --approach efc  --nw 12 --seed 0 
+python -u   main.py -op ./ws_cifar100_10step --dataset cifar100 --n_task 11 --n_class_first_task 50 --approach efc --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 
 ```
 
 2. 20 Step
 
 ```
-python -u   main.py -op ./ws_cifar100_20step --dataset cifar100 --n_task 21 --n_class_first_task 40 --approach efc  --nw 12 --seed 0 
+python -u   main.py -op ./ws_cifar100_20step --dataset cifar100 --n_task 21 --n_class_first_task 40 --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 
 ```
 
@@ -41,15 +41,14 @@ The default hyperparameters are the ones used to compute the Table 1 in the main
 1. 10 Step
 
 ```
-python -u   main.py -op ./cs_cifar100_10step --dataset cifar100 --n_task 10 --n_class_first_task 10 --approach efc --epochs 100 --nw 12 --seed 0 
+python -u   main.py -op ./cs_cifar100_10step --dataset cifar100 --n_task 10 --n_class_first_task 10 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 
 ```
 
 2. 20 Step
 
 ```
-python -u   main.py -op ./cs_cifar100_20step   --dataset cifar100 --n_task 20 --n_class_first_task 5 --approach efc --epochs 100 --nw 12 --seed 0 
-
+python -u   main.py -op ./cs_cifar100_20step   --dataset cifar100 --n_task 20 --n_class_first_task 5 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
 
 
@@ -61,37 +60,37 @@ The commands are similar, the only difference is that  the  data-folder "cl_data
 Here the 10-step and 20-step scenario **Warm Start** (WS) for Tiny-ImageNet and ImageNet-Subset.
 
 ```
-python -u   main.py -op ./ws_tinyimagenet_10step  --dataset tiny-imagenet  --n_task 11  --n_class_first_task 100 --approach efc  --nw 12 --seed 0 --data_path ./cl_data
+python -u   main.py -op ./ws_tinyimagenet_10step  --dataset tiny-imagenet  --n_task 11  --n_class_first_task 100 --data_path ./cl_data --approach efc   --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_imagenetsubset_10task --dataset imagenet-subset  --n_task 11  --n_class_first_task 50 --approach efc   --nw 12  --seed 0 --data_path ./cl_data
+python -u   main.py -op ./ws_imagenetsubset_10task --dataset imagenet-subset --n_task 11 --n_class_first_task 50 --data_path ./cl_data --approach efc --nw 12 --seed 0 --epochs_first_task 160  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_tinyimagenet_20step  --dataset tiny-imagenet  --n_task 21  --n_class_first_task 100 --approach efc  --nw 12 --seed 0 --data_path ./cl_data
+python -u   main.py -op ./ws_tinyimagenet_20step  --dataset tiny-imagenet  --n_task 21 --n_class_first_task 100 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_imagenetsubset_20task --dataset imagenet-subset  --n_task 21  --n_class_first_task 40 --approach efc   --nw 12  --seed 0 --data_path ./cl_data
+python -u   main.py -op ./ws_imagenetsubset_20task --dataset imagenet-subset --n_task 21 --n_class_first_task 40 --data_path ./cl_data --approach efc --nw 12 --seed 0 --epochs_first_task 160  --epochs_next_task 100
 ```
 
 Here the 10-step and 20-step scenario **Cold Start** (CS) for Tiny-ImageNet and ImageNet-Subset.
 
 ```
-python -u   main.py -op ./ws_tinyimagenet_10step  --dataset tiny-imagenet  --n_task 10  --n_class_first_task 20 --approach efc  --nw 12 --seed 0 --data_path ./cl_data
+python -u   main.py -op ./cs_tinyimagenet_10step  --dataset tiny-imagenet  --n_task 10  --n_class_first_task 20 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_imagenetsubset_10step --dataset imagenet-subset  --n_task 10  --n_class_first_task 10 --approach efc   --nw 12  --seed 0 --data_path ./cl_data
+python -u   main.py -op ./cs_imagenetsubset_10step --dataset imagenet-subset --n_task 10 --n_class_first_task 10 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 160  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_tinyimagenet_20step  --dataset tiny-imagenet  --n_task 20  --n_class_first_task 10 --approach efc  --nw 12 --seed 0 --data_path ./cl_data
+python -u   main.py -op ./cs_tinyimagenet_20step  --dataset tiny-imagenet  --n_task 20 --n_class_first_task 10  --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
 
 ```
-python -u   main.py -op ./ws_imagenetsubset_20step --dataset imagenet-subset  --n_task 20  --n_class_first_task 5 --approach efc   --nw 12  --seed 0 --data_path ./cl_data
+python -u   main.py -op ./cs_imagenetsubset_20step --dataset imagenet-subset --n_task 20 --n_class_first_task 5 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 160  --epochs_next_task 100
 ```
 
 

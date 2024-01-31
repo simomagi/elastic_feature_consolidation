@@ -13,7 +13,7 @@ python -u   main.py -op $1/$filename  --dataset cifar100 --n_task 11 --n_class_f
 python -u   main.py -op $1/$filename  --dataset cifar100 --n_task 21 --n_class_first_task 40 --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 
  
-python -u   main.py -op $1/$filename  --dataset tiny-imagenet  --n_task 11  --n_class_first_task 100 --data_path ./cl_data --approach efc   --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
+python -u   main.py -op $1/$filename  --dataset tiny-imagenet  --n_task 11 --n_class_first_task 100 --data_path ./cl_data --approach efc   --nw 12 --seed 0 --epochs_first_task 100 --epochs_next_task 100
 
 python -u   main.py -op $1/$filename  --dataset tiny-imagenet  --n_task 21 --n_class_first_task 100 --data_path ./cl_data --approach efc  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 
