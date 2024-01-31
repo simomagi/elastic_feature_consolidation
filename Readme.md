@@ -2,7 +2,7 @@
 
 This repository contains all code needed to reproduce the experimental results in the main paper.
 
-![](images/EFC_overview_split.pdf)
+![](images/EFC_overview_split.png)
 
 # Setting up the Conda environment
 
