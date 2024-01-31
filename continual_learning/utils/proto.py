@@ -92,8 +92,6 @@ class  ProtoGenerator(ProtoManager):
        
              
         self.running_proto = deepcopy(self.prototype)
-        torch.save((self.running_proto, self.running_proto_variance), os.path.join(self.out_path, "gaussian_task_{}.pt".format(current_task)))
-        
  
         
     def update_gaussian(self, proto_label, mean, var):

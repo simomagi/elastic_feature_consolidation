@@ -11,8 +11,6 @@ def compute_rotations(images, image_size, task_dict, targets, task_id):
 
 def save_efm(cov, task_id, out_path):
     print("Saving Empirical Feature Matrix")
-    torch.save(torch.trace(cov).item(), os.path.join(out_path, "trace_task_{}.pt".format(task_id)))
-    torch.save(torch.linalg.matrix_rank(cov.cpu()).item(), os.path.join(out_path, "rank_task_{}.pt".format(task_id)))
     torch.save(cov, os.path.join(out_path, "efm_task_{}.pt".format(task_id)))
 
 def get_old_new_features(model, old_model, trn_loader, device):
