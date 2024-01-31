@@ -2,6 +2,8 @@
 
 This repository contains all code needed to reproduce the experimental results in the main paper.
 
+![](images/EFC_overview_split.pdf)
+
 # Setting up the Conda environment
 
 To run the EFC code you must create an Anaconda environment from the `environment.yml` file and activate it:
