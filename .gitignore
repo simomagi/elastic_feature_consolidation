@@ -1,3 +1,5 @@
 prova/
 __pycache__/
 data/ 
+*.txt 
+*.sh 

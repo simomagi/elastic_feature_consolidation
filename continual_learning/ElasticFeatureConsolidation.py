@@ -322,7 +322,7 @@ class ElasticFeatureConsolidation(IncrementalApproach):
 
         for i in range(running_prototypes.shape[0]): 
             # we use the EFM to update prototypes
-            curr_diff = (old_features - running_prototypes[i, :].unsqueeze(0)).unsqueeze(1).cuda()
+            curr_diff = (old_features - running_prototypes[i, :].unsqueeze(0)).unsqueeze(1).to(self.device)
 
             distance[i] = -torch.bmm(torch.bmm(curr_diff, self.previous_efm.expand(curr_diff.shape[0], -1, -1)), curr_diff.permute(0,2,1)).flatten().cpu()
 
