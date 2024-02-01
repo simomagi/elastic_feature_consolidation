@@ -153,6 +153,6 @@ python -u   main.py -op ./cs_imagenetsubset_20step --dataset imagenet-subset --n
 
 
 
-In the bash file "experiments.sh" all the experiments for all the scenarios can be run. 
+In the bash file `experiments.sh` all the experiments for all the scenarios can be run. 
 
 
