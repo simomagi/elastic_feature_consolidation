@@ -5,7 +5,6 @@
 This repository contains all code needed to reproduce the experimental results for the paper:
 
 **Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning** 
-
 *Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov*  
 [(ICLR2024)]()
 
