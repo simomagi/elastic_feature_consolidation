@@ -2,8 +2,20 @@
 
 ![](images/EFC_overview_split.png)
 
-This repository contains all code needed to reproduce the experimental results in Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning, published at ICLR 2024.
+This repository contains all code needed to reproduce the experimental results for the paper:
 
+Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning  
+Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov 
+[ICLR2024]()
+
+# Cite
+
+If you find this code useful in your research, please cite:
+
+```
+
+
+```
 
 # Setting up the Conda environment
 
@@ -154,5 +166,13 @@ python -u   main.py -op ./cs_imagenetsubset_20step --dataset imagenet-subset --n
 
 
 In the bash file `experiments.sh` all the experiments for all the scenarios can be run. 
+
+# License
+
+Please check the MIT license that is listed in this repository.
+
+
+
+
 
 
