@@ -100,7 +100,6 @@ if __name__ == "__main__":
     Logger Init
     """
     logger = Logger(out_path=out_path, n_task=args.n_task, task_dict=task_dict, test_sizes=test_sizes)
-    result_folder(out_path, "tensorboard")
     result_folder(out_path, "logger")
  
  

@@ -173,7 +173,6 @@ class ElasticFeatureConsolidation(IncrementalApproach):
                                                                     proto_to_samples=pb)
             
             loss = cls_loss + efc_loss + loss_protoAug  
-            self.log_batch(task_id,  self.batch_idx, loss, cls_loss, efc_loss, loss_protoAug)
             
             self.batch_idx += 1 
             self.optimizer.zero_grad()
@@ -251,12 +250,7 @@ class ElasticFeatureConsolidation(IncrementalApproach):
                 proto_loss = proto_loss/total_prototypes
                 overall_loss = cls_loss  + efc_loss  + proto_loss 
             else:
-                overall_loss = cls_loss
-                
-
-            self.log(current_training_task, test_id, epoch, cls_loss, efc_loss , 
-                        proto_loss ,
-                        tag_acc, taw_acc) 
+                overall_loss = cls_loss 
             
             if verbose:
                 print(" - classification loss: {}".format(cls_loss))
@@ -339,44 +333,3 @@ class ElasticFeatureConsolidation(IncrementalApproach):
             displacement[i] = torch.sum((W_norm[i].unsqueeze(1) * DY),dim=0)
     
         return displacement
-
-        
-        
-        
-    def log_batch(self, current_training_task,   batch_idx,  loss, clf_loss, efc_loss, proto_loss):
-        name_tb = "training_task_" + str(current_training_task) + "/batch_overall_loss" 
-        self.logger.add_scalar(name_tb, loss.item(), batch_idx)
-        name_tb = "training_task_" + str(current_training_task) + "/batch_classification_loss" 
-        self.logger.add_scalar(name_tb, clf_loss.item(), batch_idx)
-        if current_training_task > 0:
-            name_tb = "training_task_" + str(current_training_task) + "/batch_proto_loss" 
-            self.logger.add_scalar(name_tb, proto_loss.item(), batch_idx)
-            name_tb = "training_task_" + str(current_training_task) + "/batch_efc_loss" 
-            self.logger.add_scalar(name_tb, efc_loss.item(), batch_idx)
-        
-            
-        
-
-    def log(self, current_training_task, test_id, epoch, clf_loss, efc_loss, proto_loss,   tag_acc , taw_acc):
-        name_tb = "training_task_" + str(current_training_task) + "/dataset_" + str(test_id) + "_classification_loss"
-        self.logger.add_scalar(name_tb, clf_loss, epoch)
-
-        name_tb = "training_task_" + str(current_training_task) + "/dataset_" + str(test_id) + "_TAG_accuracy"
-        self.logger.add_scalar(name_tb, tag_acc, epoch)
-
-        name_tb = "training_task_" + str(current_training_task) + "/dataset_" + str(test_id) + "_TAW_accuracy"
-        self.logger.add_scalar(name_tb, taw_acc, epoch)
-        
-        if current_training_task > 0:
-            name_tb = "training_task_" + str(current_training_task) + "/dataset_" + str(test_id) + "_efc_loss"
-            self.logger.add_scalar(name_tb, efc_loss, epoch)
-            
-            name_tb = "training_task_" + str(current_training_task) + "/dataset_" + str(test_id) + "_proto_loss"
-            self.logger.add_scalar(name_tb, proto_loss, epoch)
-            
- 
-    
- 
-
-
- 

@@ -4,7 +4,6 @@ from sched import scheduler
 from tabnanny import verbose
 import torch
 import sys
-from torch.utils.tensorboard import SummaryWriter
 from continual_learning.utils.OptimizerManager import OptimizerManager
 
 class IncrementalApproach(metaclass=abc.ABCMeta):
@@ -20,7 +19,6 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
       self.backbone = args.backbone
 
       self.batch_size = args.batch_size 
-      self.logger = SummaryWriter(os.path.join(out_path, "tensorboard"))
       self.milestones_first_task = None 
       self.dataset = args.dataset
       if self.dataset=="cifar100":
@@ -80,9 +78,6 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
    def eval(self, *args):
       pass
 
-   @abc.abstractmethod
-   def log(self, *args):
-      pass
    
 
    def print_running_approach(self):
