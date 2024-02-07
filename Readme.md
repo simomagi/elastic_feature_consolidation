@@ -6,14 +6,21 @@ This repository contains all code needed to reproduce the experimental results f
 _**Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning**_   
 *Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov*  
 [(ICLR2024)](https://openreview.net/forum?id=7D9X2cFnt1)
+[(arXiv)](https://arxiv.org/abs/2402.03917)
 
 # Cite
 
-If you find this code useful in your research, please cite:
+If this code is useful in your research, please cite it as follows until the camera-ready version for ICLR 2024 becomes available:
 
 ```
-
-
+@misc{magistri2024elastic,
+      title={Elastic Feature Consolidation for Cold Start Exemplar-free Incremental Learning}, 
+      author={Simone Magistri and Tomaso Trinci and Albin Soutif-Cormerais and Joost van de Weijer and Andrew D. Bagdanov},
+      year={2024},
+      eprint={2402.03917},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 ```
 
 # Setting up the Conda environment
