@@ -10,16 +10,16 @@ _**Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learni
 
 # Cite
 
-If this code is useful in your research, please cite it as follows until the camera-ready version for ICLR 2024 becomes available:
+If this code is useful in your research, please cite it as follows:
 
 ```
-@misc{magistri2024elastic,
-      title={Elastic Feature Consolidation for Cold Start Exemplar-free Incremental Learning}, 
-      author={Simone Magistri and Tomaso Trinci and Albin Soutif-Cormerais and Joost van de Weijer and Andrew D. Bagdanov},
-      year={2024},
-      eprint={2402.03917},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@inproceedings{
+magistri2024elastic,
+title={Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning},
+author={Simone Magistri and Tomaso Trinci and Albin Soutif and Joost van de Weijer and Andrew D. Bagdanov},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=7D9X2cFnt1}
 }
 ```
 
