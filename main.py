@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
         if  task_id == 0 and args.firsttask_modelpath != "None":
             # useful for retrieving a pre-trained model, it must be saved in  a path {args.firsttask_modelpath}/{args.dataset}_{args.seed}/0_model.pth"
-            approach.pre_train(task_id, train_loader,  valid_loaders[task_id])
+            approach.pre_train(task_id)
  
             print("Loading model from path {}".format(os.path.join(args.firsttask_modelpath, "{}_seed_{}".format(args.dataset, args.seed), "0_model.pth")))
 
