@@ -1,4 +1,4 @@
-# Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning
+# Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning (ICLR 2024)
 
 ![](images/EFC_overview_split.png)
 
