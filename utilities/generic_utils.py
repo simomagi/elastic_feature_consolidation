@@ -94,12 +94,10 @@ def store_dictionary(d, out_path, name):
         json.dump(d, f, ensure_ascii=False, indent=4)
 
 
-def rollback_model(approach, out_path, device, name=None):
-    if name is not None:
-        approach.model.load_state_dict(torch.load(out_path, map_location=device))
-        print("Model Loaded {}".format(out_path))
-    else:
-        approach.model.load_state_dict(torch.load(os.path.join(out_path,'_model.pth'), map_location=device))
+def rollback_model(approach, model_path, device):
+    approach.model.load_state_dict(torch.load(model_path, map_location=device))
+    print("Model Loaded {}".format(model_path))
+ 
 
 
 def store_model(approach, out_path, name=""):
@@ -159,10 +157,18 @@ def remap_targets(train_set, test_set, total_classes, dataset):
             723, 635, 302, 702, 453, 218, 164, 829, 247, 775, 191, 732, 115, 331, 901, 416, 873, 754, 900, 435, 762,
             124, 304, 329, 349, 295, 95, 451, 285, 225, 945, 697, 417
         ]
+         
+    elif dataset == "domainnet":
+         pass # not shuffle the dataset in case of domainet
+     
     else:
         random.shuffle(l)
     
     label_mapping = dict(zip(l_sorted, l))
+    
+    if dataset == "domainnet":
+        # is not necessary to remap label for domainet
+        return train_set, test_set, label_mapping
     
     # remap train labels following label_mapping    
     
@@ -186,7 +192,3 @@ def remap_targets(train_set, test_set, total_classes, dataset):
      
     return train_set, test_set, label_mapping
 
-def store_valid_loader(out_path, valid_loaders, store):
-    if store:
-        for i, loader in enumerate(valid_loaders):
-            torch.save(loader, os.path.join(out_path, 'dataloader_'+str(i)+'.pth'))

@@ -8,10 +8,10 @@ def get_args():
     """
     Structural hyperparams 
     """
-    parser.add_argument("--approach", type=str,default="efc", choices=["efc"])
+    parser.add_argument("--approach", type=str,default="efc", choices=["efc", "efc++"], help="approach to use")
     parser.add_argument("--outpath", "-op",default="./", type=str) 
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--nw", type=int, default=4, help="num workers for data loader")
+    parser.add_argument("--nw", type=int, default=16, help="num workers for data loader")
  
     """
     Training hyperparams 
@@ -22,7 +22,12 @@ def get_args():
     parser.add_argument("--device", type=int, default=0)
     
     "Dataset Settings"
-    parser.add_argument("--dataset", type=str, default="cifar100", choices=["cifar100","tiny-imagenet", "imagenet-subset", "imagenet-1k"], help="dataset to use") 
+    parser.add_argument("--dataset", type=str, default="cifar100", choices=["cifar100",
+                                                                            "tiny-imagenet",
+                                                                            "imagenet-subset", 
+                                                                            "imagenet-1k",
+                                                                            "domainnet"], help="dataset to use")
+     
     parser.add_argument("--data_path",type=str, default="/cl_data",help="path where imagenet subset, imagenet-1k, tiny-imagenet are saved")
     
     parser.add_argument("--n_class_first_task", type=int, default=50, help="if greater than -1 use a larger number of classes for the first class, n_task include this one")
@@ -41,7 +46,15 @@ def get_args():
     parser.add_argument("--efc_protobatchsize", type=int, default=64, help="batch size of prototypes, should be changed to 256 for imagenet-1k")
     parser.add_argument("--efc_damping", type=float, default=0.1, help="damping hyperparameter, eta in the paper")
     parser.add_argument("--efc_protoupdate",type=float, default=0.2, help=["update proto using  gaussian sigma (in the paper) 0.2, if -1 it is specified it does not update the prototype"] )
- 
+    """
+    EFC++ Hyperparams
+    """
+    # efc_lamb, efc_damping and efc_protoupdate are the same as EFC
+    
+    parser.add_argument("--balanced_bs", type=int, default=256, help="batch size for prototype re-balancing")
+    parser.add_argument("--balanced_epochs", type=int, default=50, help="number of epochs for prototype re-balancing")
+    parser.add_argument("--balanced_lr", type=float, default=1e-3, help="learning rate for prototype re-balancing")
+    
     args = parser.parse_args()
 
     non_default_args = {

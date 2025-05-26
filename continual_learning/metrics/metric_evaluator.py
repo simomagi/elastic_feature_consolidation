@@ -32,7 +32,7 @@ class MetricEvaluator():
         self.tag_labels.append(original_labels)
     
 
-    def get(self, verbose):
+    def get(self):
         self.taw_probabilities = torch.cat(self.taw_probabilities)
         self.taw_labels = torch.cat(self.taw_labels).cpu().numpy()
 
@@ -44,11 +44,7 @@ class MetricEvaluator():
         tag_acc = accuracy_score(self.tag_labels, torch.max(self.tag_probabilities, axis = 1)[1].cpu().numpy())
  
 
-        if verbose:
-            print(" - task agnostic accuracy : {}".format(tag_acc))
-            print(" - task aware accuracy: {}".format(taw_acc))
-
-        return taw_acc,   tag_acc 
+        return taw_acc,  tag_acc 
     
 
 

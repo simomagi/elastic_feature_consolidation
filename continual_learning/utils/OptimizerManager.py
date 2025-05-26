@@ -19,8 +19,7 @@ class OptimizerManager:
                 print("Optimizing Self Rotation")
        
                 
-                
-            if self.dataset == "imagenet-subset" or self.dataset == "imagenet-1k":
+            if self.dataset == "imagenet-subset" or self.dataset == "imagenet-1k" or self.dataset == "domainnet":
                 
                 lr_first_task = 0.1 
                 gamma = 0.1 
@@ -64,16 +63,25 @@ class OptimizerManager:
         else:
             # Oprimization Settings Next Tasks
             model.freeze_bn()
-            if self.dataset == "imagenet-subset"  or self.dataset == "imagenet-1k": 
-                backbone_lr = 1e-5
-                head_lr = 1e-4
-                custom_weight_decay = 2e-4
-                backbone_params = [p for p in  model.backbone.parameters() if p.requires_grad]
-            
+            if self.approach == "efc":
+                # both old and current task classifiers are trained during the backbone training
                 old_head_params = [p for p in model.heads[:-1].parameters()  if p.requires_grad]
-                
                 new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
                 head_params = old_head_params + new_head_params
+            
+            elif self.approach == "efc++":
+                # only the current task classifier is trained during the backbone training.
+                # it is important to filter old task classifiers, otherwise the weight decay of Adam will change old task classifiers.
+                new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
+                head_params = new_head_params
+            
+            backbone_params = [p for p in  model.backbone.parameters() if p.requires_grad]    
+            params_to_optimize = backbone_params +  head_params 
+            custom_weight_decay = 2e-4
+            
+            if self.dataset == "imagenet-subset"  or self.dataset == "imagenet-1k" or self.dataset == "domainnet": 
+                backbone_lr = 1e-5
+                head_lr = 1e-4
                 
                 optimizer = torch.optim.Adam([{'params': head_params, 'lr':head_lr},
                                 {'params': backbone_params}
@@ -86,21 +94,14 @@ class OptimizerManager:
 
             else:
                 
-                old_head_params = [p for p in model.heads[:-1].parameters()  if p.requires_grad]
-
-                new_head_params = [p for p in  model.heads[-1].parameters() if p.requires_grad]
-                head_params = old_head_params + new_head_params
-
-                params_to_optimize = [p for p in model.backbone.parameters() if p.requires_grad] +  head_params 
                 backbone_lr = head_lr = 1e-4
-                custom_weight_decay = 2e-4
-                optimizer =  torch.optim.Adam(params_to_optimize, lr=backbone_lr, weight_decay=2e-4)
+                optimizer =  torch.optim.Adam(params_to_optimize, lr=backbone_lr, weight_decay=custom_weight_decay)
                 print("Using Adam Optimizer With Fixed LR: \n\
                         Backbone LR: {}, Head LR {}, Weight Decay {}".format(backbone_lr,
                                                                             head_lr,      
                                                                             custom_weight_decay)) 
 
-            # Fixed Scheduler
+            # Fixed Scheduler: defined only to keep compatibility with the first task, never used for the next tasks.
             reduce_lr_on_plateau = torch.optim.lr_scheduler.MultiStepLR(optimizer,
                                                             milestones=[1000,2000],
                                                             gamma=0.1, verbose=True

@@ -2,13 +2,14 @@
 
 from utilities.generic_utils import experiment_folder, result_folder, \
                             get_task_dict, seed_everything, rollback_model, \
-                            store_model, store_valid_loader, get_class_per_task, remap_targets 
+                            store_model, get_class_per_task, remap_targets 
 from utilities.parse_utils import get_args
 from utilities.matrix_logger import Logger
 from torch.utils.data.dataloader import DataLoader
 
 # approaches 
 from continual_learning.ElasticFeatureConsolidation import ElasticFeatureConsolidation
+from continual_learning.ElasticFeatPlusPlus import ElasticFeatPlusPlus
 
 # dataset 
 from dataset.continual_learning_dataset import ContinualLearningDataset
@@ -18,7 +19,7 @@ import sys
 from utilities.summary_logger import SummaryLogger
 import os 
 from copy import deepcopy
-import math
+
  
 
 if __name__ == "__main__":
@@ -48,10 +49,9 @@ if __name__ == "__main__":
     """
     Dataset Preparation
     """
-    train_set, test_set, total_classes = get_dataset(args.dataset, args.data_path)
+    train_set, test_set, total_classes = get_dataset(args.dataset, args.data_path, args.n_task)
     
     # mapping between classes and shuffled classes and re-map dataset classes for different order of classes 
-    # for imagenet-1k we use the order of classes of DER  https://github.com/Rhyssiyan/DER-ClassIL.pytorch/blob/main/inclearn/datasets/dataset.py 
     train_set, test_set, label_mapping = remap_targets(train_set, test_set, total_classes, args.dataset)
     
     # class_per_task: number of classes not in the first task, if the first is larger, otherwise it is equal to total_classes/n_task
@@ -60,10 +60,10 @@ if __name__ == "__main__":
     # task_dict = {task_id: list_of_class_ids}
     task_dict = get_task_dict(args.n_task, total_classes, class_per_task, args.n_class_first_task)   
     
-    print("Dataset: {}, N task: {}, Large First Task Classes: {}, Classes Per Task : {}".format(args.dataset,
-                                                                                                  args.n_task,
-                                                                                                  args.n_class_first_task,
-                                                                                                  class_per_task))
+    print("Dataset: {}, N task: {}, First Task Classes: {}, Classes Per Task : {}".format(args.dataset,
+                                                                                          args.n_task,
+                                                                                          args.n_class_first_task,
+                                                                                          class_per_task))
         
     """
     Generate Subset For Each Task
@@ -106,76 +106,67 @@ if __name__ == "__main__":
     if args.approach == "efc":
         approach = ElasticFeatureConsolidation(args=args, device=device, 
                                                   out_path=out_path, class_per_task=class_per_task,
-                                                  task_dict=task_dict)         
+                                                  task_dict=task_dict)   
+    elif args.approach == "efc++":
+        approach = ElasticFeatPlusPlus(args=args, device=device,
+                                       out_path=out_path, class_per_task=class_per_task,
+                                       task_dict=task_dict)      
   
     else:
         sys.exit("Approach not Implemented")
  
     for task_id, train_loader in enumerate(train_loaders):
 
-
         if  task_id == 0 and args.firsttask_modelpath != "None":
-            # useful for retrieving a pre-trained model, it must be saved in  a path {args.firsttask_modelpath}/{args.dataset}_{args.seed}/0_model.pth"
+            # useful for retrieving a pre-trained checkpoint for the first task
             approach.pre_train(task_id)
  
-            print("Loading model from path {}".format(os.path.join(args.firsttask_modelpath, "{}_seed_{}".format(args.dataset, args.seed), "0_model.pth")))
+            print("Loading model from path {}".format(os.path.join(args.firsttask_modelpath,
+                                                                   args.dataset,
+                                                                   str(args.n_class_first_task)+"_class",
+                                                                   "seed_"+str(args.seed),
+                                                                   "0_model.pth")))
 
-            rollback_model(approach, os.path.join(args.firsttask_modelpath, "{}_seed_{}".format(args.dataset, args.seed),"0_model.pth"), device, name=str(task_id))
-  
-            epoch = 100
+            rollback_model(approach, os.path.join(args.firsttask_modelpath,
+                                                  args.dataset,
+                                                  str(args.n_class_first_task)+"_class",
+                                                  "seed_"+str(args.seed),
+                                                  "0_model.pth"), device)
+          
         else:
- 
             
             print("#"*40 + " --> TRAINING HEAD {}".format(task_id))
 
-            """
-            Pre-train
-            """
-
+            # Pre-training
             approach.pre_train(task_id)
-
-            best_taw_accuracy,  best_tag_accuracy = 0, 0
-            best_loss = math.inf 
-            
-            
-            """
-            Main train Loop
-            """
-                    
+    
+            # Main Train Loop        
             for epoch in range(approach.total_epochs):
                 print("Epoch {}/{}".format(epoch, approach.total_epochs))
 
                 approach.train(task_id, train_loader, epoch, approach.total_epochs)
-                taw_acc, tag_acc, test_loss  = approach.eval(task_id, task_id, valid_loaders[task_id], epoch,  verbose=True)
+                approach.eval(task_id, task_id, valid_loaders[task_id], verbose=True)
                 approach.reduce_lr_on_plateau.step()
-                    
-        """
-        Test Final Model on all the encountered tasks
-        """
-    
+                
+        # Post-training
+        approach.post_train(task_id=task_id, trn_loader=train_loader)
+
+        # Store Model
         store_model(approach, out_path, name=str(task_id))
- 
+
+        # Evaluate on the test set
         for test_id in range(task_id + 1):
-            acc_taw_value, acc_tag_value, _,  = approach.eval(task_id, test_id, test_loaders[test_id], epoch,  verbose=False)                                                                                                            
+            acc_taw_value, acc_tag_value = approach.eval(task_id, test_id, test_loaders[test_id], verbose=False)                                                                                                            
             logger.update_accuracy(current_training_task_id=task_id, test_id=test_id, acc_taw_value=acc_taw_value,  acc_tag_value=acc_tag_value)
             if test_id < task_id:
                 logger.update_forgetting(current_training_task_id=task_id, test_id=test_id)
             logger.print_latest(current_training_task_id=task_id, test_id=test_id)
 
- 
-        """
-        Post Training
-        """
         logger.compute_average()
         logger.print_file()
-        approach.post_train(task_id=task_id, trn_loader=train_loader)
-
-    
-            
-        
+             
     summary_logger = SummaryLogger(all_args, all_default_args, args.outpath)
     summary_logger.update_summary(exp_name, logger)
-    store_valid_loader(out_path, valid_loaders, False)
 
 
 

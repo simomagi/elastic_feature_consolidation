@@ -19,7 +19,7 @@ class BaseModel(nn.Module):
                 self.backbone = resnet18(avg_pool_size=4, pretrained=False)  
             elif dataset == "tiny-imagenet":
                 self.backbone = resnet18(avg_pool_size=8, pretrained=False)
-            elif dataset == "imagenet-subset" or self.dataset == "imagenet-1k": 
+            elif dataset == "imagenet-subset" or self.dataset == "imagenet-1k" or self.dataset == "domainnet": 
                 self.backbone = resnet18_imagenet()
 
         else:
@@ -67,6 +67,11 @@ class BaseModel(nn.Module):
         """Freeze all parameters from the main model, but not the heads"""
         for param in self.backbone.parameters():
             param.requires_grad = False
+            
+    def unfreeze_backbone(self):
+        """Unfreeze all parameters from the main model, but not the heads"""
+        for param in self.backbone.parameters():
+            param.requires_grad = True 
     
  
     def freeze_bn(self):

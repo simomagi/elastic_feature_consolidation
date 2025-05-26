@@ -4,8 +4,6 @@ import math
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 
-__all__ = ['ResNet', 'resnet18_cbam', 'resnet34_cbam', 'resnet50_cbam', 'resnet101_cbam',
-           'resnet152_cbam']
 
 
 model_urls = {

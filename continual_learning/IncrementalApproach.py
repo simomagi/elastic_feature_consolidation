@@ -25,7 +25,7 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
          self.image_size = 32
       elif self.dataset=="tiny-imagenet":
          self.image_size = 64
-      elif self.dataset=="imagenet-subset" or self.dataset == "imagenet-1k":
+      elif self.dataset=="imagenet-subset" or self.dataset == "imagenet-1k" or self.dataset == "domainnet":
          self.image_size = 224
 
       self.firsttask_modelpath = args.firsttask_modelpath 
@@ -81,13 +81,20 @@ class IncrementalApproach(metaclass=abc.ABCMeta):
    
 
    def print_running_approach(self):
+      print("#"*40 + " --> Dataset: {}".format(self.dataset))
+      print("- class first task: {}".format(self.n_class_first_task))
+      print("- number of tasks: {}".format(len(self.task_dict))) 
+      print("\n")
       print("#"*40 + " --> RUNNING APPROACH")
       print("- approach: {}".format(self.approach))
       print("- backbone: {}".format(self.backbone))
       print("- batch size : {}".format(self.batch_size))
       print("- epochs first task: {}".format(self.epochs_first_task))
       print("- epochs next task: {}".format(self.epochs_next_task))
+
+      
       print()
+        
 
    
  

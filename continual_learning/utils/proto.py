@@ -49,6 +49,7 @@ class  ProtoGenerator(ProtoManager):
         self.current_std = None 
         self.gaussians = {}
         self.rank_list = []
+        self.class_stats = {}
 
         
         
@@ -75,6 +76,7 @@ class  ProtoGenerator(ProtoManager):
         for label in self.task_dict[current_task]:
             mask = (label_list == label)
             feature_classwise = features_list[mask]
+            self.class_stats[label] = feature_classwise.shape[0]
            
         
             proto = feature_classwise.mean(dim=0)

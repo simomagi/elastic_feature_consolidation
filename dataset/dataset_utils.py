@@ -127,8 +127,67 @@ def get_train_val_images_imagenet_1k(data_path):
     test_targets =  np.array(test_labels)
  
     return train_images, train_targets, test_images, test_targets, class_to_idx
-    
 
+
+def get_train_val_images_domainnet(data_path, n_task):
+    
+    train_annotations = open(os.path.join(data_path, "DomainNet",  "cs_train_{}.txt".format(n_task)), "r")
+    test_annotations = open(os.path.join(data_path, "DomainNet",  "cs_test_{}.txt".format(n_task)), "r")
+
+    train_lines = train_annotations.readlines()
+    test_lines = test_annotations.readlines() 
+
+    train_images = []
+    train_labels = []
+    for item in train_lines:
+        splitted_item = item.rstrip()
+        splitted_item  = splitted_item.split(" ")
+        image_path = "/".join([splitted_item[0].split("/")[0],splitted_item[0].split("/")[1], splitted_item[0].split("/")[2]])
+        image_path = os.path.join(data_path, 'DomainNet', image_path)
+        train_images.append(image_path)
+        train_labels.append(int(splitted_item[1]))
+    
+    train_targets = np.array(train_labels)
+    
+    test_images = []
+    test_labels = []
+    for item in test_lines:
+        splitted_item = item.rstrip()
+        splitted_item  = splitted_item.split(" ")
+        image_path = "/".join([splitted_item[0].split("/")[0], splitted_item[0].split("/")[1], splitted_item[0].split("/")[2]])
+        image_path = os.path.join(data_path, 'DomainNet', image_path)
+        test_images.append(image_path)
+        test_labels.append(int(splitted_item[1]))
+    
+    test_targets = np.array(test_labels)
+
+    return train_images, train_targets, test_images, test_targets
+
+    
+class DomainNet(Dataset):
+    def __init__(self, data, targets, transform):
+        self.data = data
+        self.targets = targets
+        self.transform = transform 
+        
+    
+    def __len__(self) -> int:
+        return len(self.data)
+
+    
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+
+        img_path, target = self.data[index], self.targets[index]
+        
+        with open(img_path, 'rb') as f:
+            img = Image.open(f)
+            img = img.convert('RGB')
+
+        if self.transform is not None:
+            img = self.transform(img)
+            
+            
+        return img, target
 
 
 class TinyImagenetDataset(Dataset):
@@ -160,7 +219,7 @@ class TinyImagenetDataset(Dataset):
 
         
         
-def get_dataset(dataset_type, data_path):
+def get_dataset(dataset_type, data_path, n_task):
     if  dataset_type == "cifar100":
         print("Loading Cifar 100")
         train_transform = [transforms.Pad(4), transforms.RandomResizedCrop(32), 
@@ -256,6 +315,35 @@ def get_dataset(dataset_type, data_path):
         test_set = TinyImagenetDataset(test_data, test_targets, class_to_idx, test_transform)
         
         n_classes = 1000
+        
+    elif dataset_type == "domainnet":
+        
+        train_data, train_targets, test_data, test_targets  = get_train_val_images_domainnet(data_path, n_task)
+         
+         
+        train_transform = transforms.Compose([
+                transforms.Resize(256),
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                    std=[0.229, 0.224, 0.225])
+                    ])
+        
+        test_transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                std=[0.229, 0.224, 0.225])
+            ])
+        
+        
+        n_classes = len(np.unique(train_targets))
+        print("Number of classes of DomainNet is {}".format(n_classes))
+
+        train_set = DomainNet(train_data, train_targets,  train_transform)
+        test_set = DomainNet(test_data, test_targets,  test_transform)
         
     
     return train_set, test_set, n_classes
