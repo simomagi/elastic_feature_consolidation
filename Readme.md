@@ -51,8 +51,8 @@ and
       url={https://arxiv.org/abs/2503.10439}, 
 }
 ```
-
-# Setting up the Conda environment
+<details>
+<summary><h2>Setting up the Conda environment</h2></summary> 
 
 To run the code you must create an Anaconda environment from the `environment.yml` file and activate it:
 
@@ -60,7 +60,11 @@ To run the code you must create an Anaconda environment from the `environment.ym
 conda env create -n EFC -f environment.yml 
 conda activate EFC
 ```
-# Data Preparation
+</details>
+
+
+<details>
+<summary><h2>Data Preparation</h2></summary> 
 CIFAR-100 is automatically downloaded. Other datasets must be **manually downloaded** and placed inside the directory specified by the `--data_path` argument (default: `./cl_data`).  
 The expected folder structure is:
             
@@ -118,11 +122,12 @@ cl_data/
       cd dataset
       python create_dn4il.py --domainnet_path ../cl_data/DomainNet
     ```
+</details>
 
 
-
-# Project Description
-
+ <details open>
+<summary><h2>Project Description</h2></summary> 
+ 
 This codebase is inspired by [FACIL](https://github.com/mmasana/FACIL) and is structured as follows:
 
 - `main.py`: This script is used to run the experiments.
@@ -148,7 +153,7 @@ This codebase is inspired by [FACIL](https://github.com/mmasana/FACIL) and is st
 
 - `continual_learning/utilities`: This directory contains various scripts to compute metrics. The `SummaryLogger` generates the `summary.csv` file, while the `Logger` class generates accuracy matrices for each task.
 
-# Analyzing the Results
+### Analyzing the Results
 
 The results are stored in the path specified by the `-op` flag. A file named `summary.csv` will be generated, which contains the following performance metrics:
 
@@ -163,7 +168,7 @@ The results are stored in the path specified by the `-op` flag. A file named `su
 - `Average_inc_acc`: Average incremental accuracy.
 
  
-# Main Command-Line Arguments
+### Main Command-Line Arguments
 
 Use the following command-line arguments to configure the behavior of the code:
 
@@ -185,38 +190,11 @@ Use the following command-line arguments to configure the behavior of the code:
 - `--balanced_epochs`: Number of epochs for prototype re-balancing in EFC++ (default=50).
 - `--balanced_lr`: Learning rate for prototype re-balancing in EFC++ (default=1e-3).
 
-
-# Running the code for CIFAR-100 experiments - Warm-Start (WS)
-
-The default hyperparameters are the ones used to compute the results in the tables of the main papers.
+</details>
 
 
-1. 10 Step
-
-```
-# EFC
-python -u   main.py -op ./ws_cifar100_10step_efc --approach efc --dataset cifar100 --n_task 11 --n_class_first_task 50 --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
-```
-
-```
-# EFC++
-python -u   main.py -op ./ws_cifar100_10step_efcplusplus --approach efc++ --dataset cifar100 --n_task 11 --n_class_first_task 50   --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
-
-```
-
-2. 20 Step
-
-```
-# EFC
-python -u   main.py -op ./ws_cifar100_20step_efc  --approach efc --dataset cifar100 --n_task 21 --n_class_first_task 40  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
-```
-```
-# EFC++
-python -u   main.py -op ./ws_cifar100_20step_efcplusplus  --approach efc++ --dataset cifar100 --n_task 21 --n_class_first_task 40  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
-
-```
-
-# Running the code for CIFAR-100 experiments - Cold-Start (CS)
+<details open> 
+<summary><h2>Running the code for CIFAR-100 experiments - Cold-Start (CS)</h2></summary> 
 
 The default hyperparameters are the ones used to compute the results in the tables of the main papers.
 
@@ -246,9 +224,45 @@ python -u   main.py -op ./cs_cifar100_20step_efc   --dataset cifar100 --approach
 # EFC++
 python -u   main.py -op ./cs_cifar100_20step_efcplusplus   --dataset cifar100 --approach efc++  --n_task 20 --n_class_first_task 5  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100
 ```
+</details>
 
 
-# Running other experiments
+<details> 
+<summary><h2>Running the code for CIFAR-100 experiments - Warm-Start (WS)</h2></summary> 
+
+The default hyperparameters are the ones used to compute the results in the tables of the main papers.
+
+
+1. 10 Step
+
+```
+# EFC
+python -u   main.py -op ./ws_cifar100_10step_efc --approach efc --dataset cifar100 --n_task 11 --n_class_first_task 50 --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
+```
+
+```
+# EFC++
+python -u   main.py -op ./ws_cifar100_10step_efcplusplus --approach efc++ --dataset cifar100 --n_task 11 --n_class_first_task 50   --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
+
+```
+
+2. 20 Step
+
+```
+# EFC
+python -u   main.py -op ./ws_cifar100_20step_efc  --approach efc --dataset cifar100 --n_task 21 --n_class_first_task 40  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
+```
+```
+# EFC++
+python -u   main.py -op ./ws_cifar100_20step_efcplusplus  --approach efc++ --dataset cifar100 --n_task 21 --n_class_first_task 40  --nw 12 --seed 0 --epochs_first_task 100  --epochs_next_task 100 
+
+```
+
+</details>
+
+
+<details> 
+<summary><h2> Running other experiments</summary>
 
 The commands are similar, with the only difference being the need to specify the `cl_data` folder using the `--data_path` argument, where the datasets should be stored. The bash scripts `experiments_efc.sh` and `experiments_efcplusplus.sh`, located in `scripts/`, provide example snippets for running other experiments.
 
@@ -272,7 +286,10 @@ python aggregate_summaries.py --base_path  all_exp_efcplusplus
 
 To run experiments with multiple seeds, it can be useful to create a bash script that iterates over the seeds, and running it as described above.
 
-## Loading a checkpoint after the first task.
+</details>
+
+<details> 
+<summary><h2> Loading a checkpoint after the first task.</summary>
 
 The command `--firsttask_modelpath` allows to load a model pre-trained  after the first task checkpoint if available. In this way the first task can be skipped and this can help to steamline  incremental experiments for research code if multiple experiments should be run. For doing this, suppose the models are stored in the folder `./cl_models` inside the project directory. Run the bash script `create_first_checkpoints_folder.sh` , which creates a folder with the following structure:
 
