@@ -1,15 +1,21 @@
-# Elastic Feature Consolidation (ICLR 2024) and EFC++ (arXiv 2025) for Exemplar-Free Incremental Learning
+# Elastic Feature Consolidation (ICLR 2024) and EFC++ (IJCV 2026) for Exemplar-Free Incremental Learning
 
 Official repository for our works on exemplar-free class incremental learning:
 
 
-📌 **Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning**  (_ICLR 2024_)  
-*Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov*  
-🔗 [ICLR Paper](https://openreview.net/forum?id=7D9X2cFnt1)
+📌 **Elastic Feature Consolidation For Cold Start Exemplar-Free Incremental Learning**    
+Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov 
+🔗 [ICLR 2024](https://openreview.net/forum?id=7D9X2cFnt1)
 
-🔥 [26/05/2025]  **EFC++: Elastic Feature Consolidation with Prototype Re-balancing for Cold Start Exemplar-free Incremental Learning**  (_arXiv Preprint_)  
- *Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov*  
-🔗 [Preprint](https://arxiv.org/abs/2503.10439)
+📌 **EFC++: Elastic Feature Consolidation with Prototype Re-balancing for Cold Start Exemplar-free Incremental Learning**  
+  Simone Magistri*, Tomaso Trinci*, Albin Soutif, Joost van de Weijer, Andrew D. Bagdanov
+🔗 [arXiv 2026](https://arxiv.org/abs/2503.10439)
+🔗 [IJCV 2026](https://link.springer.com/article/10.1007/s11263-026-03018-4)
+
+
+🔥 [28/09/2026] **EFC++ has been published in the International Journal of Computer Vision (IJCV)!**
+
+🚀 [28/09/2026] **EFC++ integration with PyCIL is coming soon!**
 
 ---
 
@@ -41,15 +47,21 @@ url={https://openreview.net/forum?id=7D9X2cFnt1}
 ```
 and
 ```
-@misc{magistri2025efcelasticfeatureconsolidation,
-      title={EFC++: Elastic Feature Consolidation with Prototype Re-balancing for Cold Start Exemplar-free Incremental Learning}, 
-      author={Simone Magistri and Tomaso Trinci and Albin Soutif-Cormerais and Joost van de Weijer and Andrew D. Bagdanov},
-      year={2025},
-      eprint={2503.10439},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2503.10439}, 
+﻿@Article{Magistri2026,
+author={Magistri, Simone and Trinci, Tomaso and Soutif-Cormerais, Albin and van de Weijer, Joost and Bagdanov, Andrew D.},
+title={EFC++: Elastic Feature Consolidation with Prototype Re-balancing for Cold Start Exemplar-free Incremental Learning},
+journal={International Journal of Computer Vision},
+year={2026},
+month={Sep},
+day={28},
+volume={134},
+number={10},
+pages={454},
+issn={1573-1405},
+doi={10.1007/s11263-026-03018-4},
+url={https://doi.org/10.1007/s11263-026-03018-4}
 }
+
 ```
 <details>
 <summary><h2>Setting up the Conda environment</h2></summary> 
