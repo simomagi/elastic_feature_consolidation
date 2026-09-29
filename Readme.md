@@ -26,7 +26,7 @@ Simone Magistri, Tomaso Trinci, Albin Soutif, Joost van de Weijer, Andrew D. Bag
 
 ![](teaser_images/EFC_overview.png)
 
-### EFC ++ (_arXiv Preprint_)
+### EFC ++ (IJCV 2026)
 **Elastic Feature Consolidation with Prototype Re-balancing** (EFC++) extends EFC by addressing the limitations of PR-ACE in Cold Start scenarios through the introduction of a prototype re-balancing phase that separates backbone and classifier training (see the paper for more details). EFC++ outperforms EFC by more effectively managing prototypes and the plasticity introduced by the EFM.
 
 ![](teaser_images/EFC++_overview.png)
